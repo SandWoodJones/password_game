@@ -10,5 +10,5 @@ strip = "debuginfo"
 [dependencies]
 chrono = "0.4.38"
 rand = "0.8.5"
-reqwest = { version = "0.12.4", features = ["blocking", "json"] }
+reqwest = { version = "0.12.4", default-features = false, features = ["blocking", "json", "default-tls"] }
 serde = { version = "1.0.203", features = ["derive"] }

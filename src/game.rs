@@ -1,4 +1,5 @@
 use rand::seq::SliceRandom;
+use std::collections::HashSet;
 
 mod wordle;
 
@@ -18,7 +19,8 @@ pub enum GameRules {
     IncludeSponsors,
     RomanMultiply35,
     IncludeCAPTCHA,
-    IncludeWordle
+    IncludeWordle,
+    Include2LetterPeriodic
 }
 
 pub struct PasswordGame {
@@ -60,7 +62,8 @@ impl PasswordGame {
             IncludeSponsors => { Self::includes_sponsors(pass) },
             RomanMultiply35 => { Self::roman_numerals_multiply_35(pass) },
             IncludeCAPTCHA => { pass.contains(&self.generated_captcha) },
-            IncludeWordle => { pass.contains(&self.todays_wordle.solution) }
+            IncludeWordle => { pass.contains(&self.todays_wordle.solution) },
+            Include2LetterPeriodic => { Self::includes_2_letter_periodic_symbol(pass) }
         }
     }
 }
@@ -98,5 +101,27 @@ impl PasswordGame {
 
         if let Some(n) = product { n >= 35 }
         else { false }
+    }
+
+    fn includes_2_letter_periodic_symbol(s: &str) -> bool {
+        let symbols = HashSet::from([
+                                                                                                                  "he",
+            "li", "be",                                                                                           "ne",
+            "na", "mg",                                                             "al", "si",             "cl", "ar",
+                  "ca", "sc", "ti",       "cr", "mn", "fe", "co", "ni", "cu", "zn", "ga", "ge", "as", "se", "br", "kr",
+            "rb", "sr",       "zr", "nb", "mo", "tc", "ru", "rh", "pd", "ag", "cd", "in", "sn", "sb", "te",       "xe",
+            "cs", "ba",       "hf", "ta",       "re", "os", "ir", "pt", "au", "hg", "tl", "pb", "bi", "po", "at", "rn",
+            "fr", "ra",       "rf", "db", "sg", "bh", "hs", "mt", "ds", "rg", "cn", "nh", "fl", "mc", "lv", "ts", "og",
+                              "la", "ce", "pr", "nd", "pm", "sm", "eu", "gd", "tb", "dy", "ho", "er", "tm", "yb", "lu",
+                              "ac", "th", "pa",       "np", "pu", "am", "cm", "bk", "cf", "es", "fm", "md", "no", "lr"
+        ]);
+        
+        let s = s.to_lowercase();
+
+        for w in s.chars().collect::<Vec<char>>().windows(2) {
+            if symbols.contains(w.iter().collect::<String>().as_str()) { return true; }
+        }
+
+        false
     }
 }
