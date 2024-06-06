@@ -1,19 +1,43 @@
+use rand::seq::SliceRandom;
+
+mod wordle;
+
+use crate::roman;
+use wordle::Wordle;
+
 #[derive(Debug, Default, Copy, Clone)]
 pub enum GameRules {
     #[default]
     FiveChars = 0,
-    IncludeNum = 1,
-    IncludeUpper = 2,
-    IncludeSpecial = 3,
-    AddTo25 = 4,
-    IncludeMonth = 5,
-    IncludeRoman = 6,
-    IncludeSponsors = 7
+    IncludeNum,
+    IncludeUpper,
+    IncludeSpecial,
+    AddTo25,
+    IncludeMonth,
+    IncludeRoman,
+    IncludeSponsors,
+    RomanMultiply35,
+    IncludeCAPTCHA,
+    IncludeWordle
 }
 
-#[derive(Default)]
 pub struct PasswordGame {
-    current_rule: GameRules
+    current_rule: GameRules,
+    generated_captcha: String,
+    todays_wordle: Wordle
+}
+
+impl Default for PasswordGame {
+   fn default() -> Self {
+        let captcha = ["be3bp", "74eyg", "x4gg5", "p2m6n", "pcede", "bdg84", "52447",
+                       "y4n6m", "y5w28", "mgw3n", "cen55", "y4n6m", "wce5n", "d22bd"].choose(&mut rand::thread_rng()).expect("Safe to unwrap as array is not empty");
+
+        PasswordGame {
+            current_rule: Default::default(),
+            generated_captcha: captcha.to_string(),
+            todays_wordle: Default::default()
+        }
+    }
 }
 
 impl PasswordGame {
@@ -33,10 +57,15 @@ impl PasswordGame {
             AddTo25 => { Self::adds_to_25(pass) },
             IncludeMonth => { Self::includes_month(pass) },
             IncludeRoman => { pass.chars().any(|c| ['I', 'V', 'X', 'L', 'C', 'D', 'M'].contains(&c) ) },
-            IncludeSponsors => { Self::includes_sponsors(pass) }
+            IncludeSponsors => { Self::includes_sponsors(pass) },
+            RomanMultiply35 => { Self::roman_numerals_multiply_35(pass) },
+            IncludeCAPTCHA => { pass.contains(&self.generated_captcha) },
+            IncludeWordle => { pass.contains(&self.todays_wordle.solution) }
         }
     }
+}
 
+impl PasswordGame {
     fn adds_to_25(s: &str) -> bool {
         let mut r = 0;
 
@@ -59,5 +88,15 @@ impl PasswordGame {
         let s = s.to_lowercase();
 
         sponsors.iter().any(|m| s.contains(m))
+    }
+
+    fn roman_numerals_multiply_35(s: &str) -> bool {
+        let s: String = s.chars().filter(|c| ['I', 'V', 'X', 'L', 'C', 'D', 'M'].contains(&c) ).collect();
+
+        let product = roman::roman_to_int(&s).expect("string is filtered so Err is unreachable")
+                        .iter().try_fold(1usize, |acc, &num| acc.checked_mul(num as usize));
+
+        if let Some(n) = product { n >= 35 }
+        else { false }
     }
 }

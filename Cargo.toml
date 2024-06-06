@@ -3,4 +3,12 @@ name = "password_game"
 version = "0.1.0"
 edition = "2021"
 
+[profile.dev]
+debug = 0
+strip = "debuginfo"
+
 [dependencies]
+chrono = "0.4.38"
+rand = "0.8.5"
+reqwest = { version = "0.12.4", features = ["blocking", "json"] }
+serde = { version = "1.0.203", features = ["derive"] }
