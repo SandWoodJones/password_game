@@ -1,5 +1,7 @@
 use rand::seq::SliceRandom;
+use moon_phase::MoonPhase;
 use std::collections::HashSet;
+use std::time::SystemTime;
 
 mod wordle;
 
@@ -20,13 +22,15 @@ pub enum GameRules {
     RomanMultiply35,
     IncludeCAPTCHA,
     IncludeWordle,
-    Include2LetterPeriodic
+    Include2LetterPeriodic,
+    IncludeMoonPhase
 }
 
 pub struct PasswordGame {
     current_rule: GameRules,
     generated_captcha: String,
-    todays_wordle: Wordle
+    todays_wordle: Wordle,
+    current_moon_phase: MoonPhase
 }
 
 impl Default for PasswordGame {
@@ -37,7 +41,8 @@ impl Default for PasswordGame {
         PasswordGame {
             current_rule: Default::default(),
             generated_captcha: captcha.to_string(),
-            todays_wordle: Default::default()
+            todays_wordle: Default::default(),
+            current_moon_phase: MoonPhase::new(SystemTime::now())
         }
     }
 }
@@ -63,7 +68,8 @@ impl PasswordGame {
             RomanMultiply35 => { Self::roman_numerals_multiply_35(pass) },
             IncludeCAPTCHA => { pass.contains(&self.generated_captcha) },
             IncludeWordle => { pass.contains(&self.todays_wordle.solution) },
-            Include2LetterPeriodic => { Self::includes_2_letter_periodic_symbol(pass) }
+            Include2LetterPeriodic => { Self::includes_2_letter_periodic_symbol(pass) },
+            IncludeMoonPhase => { self.includes_moon_phase_emoji(pass) }
         }
     }
 }
@@ -105,23 +111,37 @@ impl PasswordGame {
 
     fn includes_2_letter_periodic_symbol(s: &str) -> bool {
         let symbols = HashSet::from([
-                                                                                                                  "he",
-            "li", "be",                                                                                           "ne",
-            "na", "mg",                                                             "al", "si",             "cl", "ar",
-                  "ca", "sc", "ti",       "cr", "mn", "fe", "co", "ni", "cu", "zn", "ga", "ge", "as", "se", "br", "kr",
-            "rb", "sr",       "zr", "nb", "mo", "tc", "ru", "rh", "pd", "ag", "cd", "in", "sn", "sb", "te",       "xe",
-            "cs", "ba",       "hf", "ta",       "re", "os", "ir", "pt", "au", "hg", "tl", "pb", "bi", "po", "at", "rn",
-            "fr", "ra",       "rf", "db", "sg", "bh", "hs", "mt", "ds", "rg", "cn", "nh", "fl", "mc", "lv", "ts", "og",
-                              "la", "ce", "pr", "nd", "pm", "sm", "eu", "gd", "tb", "dy", "ho", "er", "tm", "yb", "lu",
-                              "ac", "th", "pa",       "np", "pu", "am", "cm", "bk", "cf", "es", "fm", "md", "no", "lr"
+                                                                                                                  "He",
+            "Li", "Be",                                                                                           "Ne",
+            "Na", "Mg",                                                             "Al", "Si",             "Cl", "Ar",
+                  "Ca", "Sc", "Ti",       "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
+            "Rb", "Sr",       "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",       "Xe",
+            "Cs", "Ba",       "Hf", "Ta",       "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
+            "Fr", "Ra",       "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
+                              "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+                              "Ac", "Th", "Pa",       "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
         ]);
         
-        let s = s.to_lowercase();
-
         for w in s.chars().collect::<Vec<char>>().windows(2) {
             if symbols.contains(w.iter().collect::<String>().as_str()) { return true; }
         }
 
         false
+    }
+
+    fn includes_moon_phase_emoji(&self, s: &str) -> bool {
+        s.contains(
+            match self.current_moon_phase.phase_name {
+                "New" => { '\u{1F311}' },
+                "Waxing Crescent" => { '\u{1F312}' },
+                "First Quarter" => { '\u{1F313}' },
+                "Waxing Gibbous" => { '\u{1F314}' },
+                "Full" => { '\u{1F315}' },
+                "Waning Gibbous" => { '\u{1F316}' },
+                "Last Quarter" => { '\u{1F317}' },
+                "Waning Crescent" => { '\u{1F318}' },
+                _ => unreachable!("error with moon phase library")
+            }
+        )
     }
 }
