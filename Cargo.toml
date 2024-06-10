@@ -8,8 +8,12 @@ debug = 0
 strip = "debuginfo"
 
 [dependencies]
+build_html = "2.4.0"
 chrono = "0.4.38"
-moon-phase = "0.1.0"
+moontool = "0.3.0"
+opener = { version = "0.7.1", default-features = false }
 rand = "0.8.5"
 reqwest = { version = "0.12.4", default-features = false, features = ["blocking", "json", "default-tls"] }
 serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.117"
+tempfile = "3.10.1"

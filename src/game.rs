@@ -1,12 +1,14 @@
 use rand::seq::SliceRandom;
-use moon_phase::MoonPhase;
+use moontool::moon::MoonPhase;
 use std::collections::HashSet;
 use std::time::SystemTime;
 
 mod wordle;
+mod geoguess;
 
 use crate::roman;
 use wordle::Wordle;
+use geoguess::GeoGuess;
 
 #[derive(Debug, Default, Copy, Clone)]
 pub enum GameRules {
@@ -23,26 +25,29 @@ pub enum GameRules {
     IncludeCAPTCHA,
     IncludeWordle,
     Include2LetterPeriodic,
-    IncludeMoonPhase
+    IncludeMoonPhase,
+    IncludeCountryName
 }
 
 pub struct PasswordGame {
     current_rule: GameRules,
     generated_captcha: String,
     todays_wordle: Wordle,
-    current_moon_phase: MoonPhase
+    current_moon_phase: MoonPhase,
+    geoguesser: GeoGuess
 }
 
 impl Default for PasswordGame {
    fn default() -> Self {
         let captcha = ["be3bp", "74eyg", "x4gg5", "p2m6n", "pcede", "bdg84", "52447",
-                       "y4n6m", "y5w28", "mgw3n", "cen55", "y4n6m", "wce5n", "d22bd"].choose(&mut rand::thread_rng()).expect("Safe to unwrap as array is not empty");
+                       "y4n6m", "y5w28", "mgw3n", "cen55", "y4n6m", "wce5n", "d22bd"].choose(&mut rand::thread_rng()).expect("safe to unwrap as array is not empty");
 
         PasswordGame {
             current_rule: Default::default(),
             generated_captcha: captcha.to_string(),
             todays_wordle: Default::default(),
-            current_moon_phase: MoonPhase::new(SystemTime::now())
+            current_moon_phase: MoonPhase::now(),
+            geoguesser: Default::default()
         }
     }
 }
@@ -69,7 +74,8 @@ impl PasswordGame {
             IncludeCAPTCHA => { pass.contains(&self.generated_captcha) },
             IncludeWordle => { pass.contains(&self.todays_wordle.solution) },
             Include2LetterPeriodic => { Self::includes_2_letter_periodic_symbol(pass) },
-            IncludeMoonPhase => { self.includes_moon_phase_emoji(pass) }
+            IncludeMoonPhase => { self.includes_moon_phase_emoji(pass) },
+            IncludeCountryName => { self.includes_countrys_name(pass) }
         }
     }
 }
@@ -130,18 +136,19 @@ impl PasswordGame {
     }
 
     fn includes_moon_phase_emoji(&self, s: &str) -> bool {
-        s.contains(
-            match self.current_moon_phase.phase_name {
-                "New" => { '\u{1F311}' },
-                "Waxing Crescent" => { '\u{1F312}' },
-                "First Quarter" => { '\u{1F313}' },
-                "Waxing Gibbous" => { '\u{1F314}' },
-                "Full" => { '\u{1F315}' },
-                "Waning Gibbous" => { '\u{1F316}' },
-                "Last Quarter" => { '\u{1F317}' },
-                "Waning Crescent" => { '\u{1F318}' },
-                _ => unreachable!("error with moon phase library")
-            }
-        )
+        match self.current_moon_phase.phase_name.as_str() {
+            "New" => { s.contains('\u{1F311}') },
+            "Waxing Crescent" | "Waning Crescent" => { s.contains('\u{1F312}') || s.contains('\u{1F318}') },
+            "First Quarter" | "Last Quarter" => { s.contains('\u{1F313}') || s.contains('\u{1F317}') },
+            "Waxing Gibbous" | "Waning Gibbous" => { s.contains('\u{1F314}')},
+            "Full" => { s.contains('\u{1F315}') },
+            _ => unreachable!("error with moon phase library")
+        }
+    }
+
+    fn includes_countrys_name(&self, s: &str) -> bool {
+        let s = s.to_lowercase();
+
+        s.contains(&self.geoguesser.answer)
     }
 }
