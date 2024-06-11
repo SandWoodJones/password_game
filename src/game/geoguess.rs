@@ -1,7 +1,6 @@
 use serde::Deserialize;
 use rand::seq::SliceRandom;
 use build_html::{Html, HtmlPage, HtmlContainer, Container, ContainerType};
-use std::fs;
 use std::{io::Write, path::Path, boxed::Box};
 
 pub(super) struct GeoGuess {

@@ -107,3 +107,13 @@ fn rule_14_test() {
     let test_game = PasswordGame::new();
     todo!()
 }
+
+#[test]
+fn rule_15_test() {
+    let test_game = PasswordGame::new();
+    assert!(test_game.validate_password("abcd0ef", GameRules::IncludeLeapYear));
+    assert!(test_game.validate_password("20AAAAA", GameRules::IncludeLeapYear));
+    assert!(test_game.validate_password("2123124", GameRules::IncludeLeapYear));
+    assert!(!test_game.validate_password("a-~30e..ç", GameRules::IncludeLeapYear));
+    assert!(!test_game.validate_password("2200", GameRules::IncludeLeapYear));
+}

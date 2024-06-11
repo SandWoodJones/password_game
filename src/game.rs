@@ -1,7 +1,6 @@
 use rand::seq::SliceRandom;
 use moontool::moon::MoonPhase;
 use std::collections::HashSet;
-use std::time::SystemTime;
 
 mod wordle;
 mod geoguess;
@@ -29,7 +28,8 @@ pub enum GameRules {
     IncludeWordle,
     Include2LetterPeriodic,
     IncludeMoonPhase,
-    IncludeCountryName
+    IncludeCountryName,
+    IncludeLeapYear
 }
 
 pub struct PasswordGame {
@@ -78,7 +78,8 @@ impl PasswordGame {
             IncludeWordle => { pass.contains(&self.todays_wordle.solution) },
             Include2LetterPeriodic => { Self::includes_2_letter_periodic_symbol(pass) },
             IncludeMoonPhase => { self.includes_moon_phase_emoji(pass) },
-            IncludeCountryName => { self.includes_countrys_name(pass) }
+            IncludeCountryName => { pass.to_lowercase().contains(&self.geoguesser.answer) },
+            IncludeLeapYear => { Self::includes_leap_year(pass) }
         }
     }
 }
@@ -149,9 +150,25 @@ impl PasswordGame {
         }
     }
 
-    fn includes_countrys_name(&self, s: &str) -> bool {
-        let s = s.to_lowercase();
+    fn includes_leap_year(s: &str) -> bool {
+        fn is_leap(n: &Vec<u32>) -> bool {
+            if n.is_empty() { return false; }
+            let n = n.iter().fold(0, |acc, elem| acc * 10 + elem);
 
-        s.contains(&self.geoguesser.answer)
+            (n % 4 == 0) && ((n % 100 != 0) || (n % 400 == 0))
+        }
+        
+        let mut number = Vec::new();
+        for ch in s.chars() {
+            if let Some(n) = ch.to_digit(10) { number.push(n) }
+            else {
+                if is_leap(&number) { return true; }
+                number.clear();
+            }
+        }
+
+        is_leap(&number)
     }
 }
+
+
