@@ -6,6 +6,9 @@ use std::time::SystemTime;
 mod wordle;
 mod geoguess;
 
+#[cfg(test)]
+mod tests;
+
 use crate::roman;
 use wordle::Wordle;
 use geoguess::GeoGuess;
