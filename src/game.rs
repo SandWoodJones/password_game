@@ -29,7 +29,8 @@ pub enum GameRules {
     Include2LetterPeriodic,
     IncludeMoonPhase,
     IncludeCountryName,
-    IncludeLeapYear
+    IncludeLeapYear,
+    IncludeBestMove
 }
 
 pub struct PasswordGame {
@@ -79,7 +80,8 @@ impl PasswordGame {
             Include2LetterPeriodic => { Self::includes_2_letter_periodic_symbol(pass) },
             IncludeMoonPhase => { self.includes_moon_phase_emoji(pass) },
             IncludeCountryName => { pass.to_lowercase().contains(&self.geoguesser.answer) },
-            IncludeLeapYear => { Self::includes_leap_year(pass) }
+            IncludeLeapYear => { Self::includes_leap_year(pass) },
+            IncludeBestMove => { self.includes_best_chess_move(pass) }
         }
     }
 }
@@ -92,7 +94,7 @@ impl PasswordGame {
             if let Some(d) = c.to_digit(10) { r += d; }
         }
 
-        return r >= 25;
+        r >= 25
     }
 
     fn includes_month(s: &str) -> bool {
@@ -110,7 +112,7 @@ impl PasswordGame {
     }
 
     fn roman_numerals_multiply_35(s: &str) -> bool {
-        let s: String = s.chars().filter(|c| ['I', 'V', 'X', 'L', 'C', 'D', 'M'].contains(&c) ).collect();
+        let s: String = s.chars().filter(|c| ['I', 'V', 'X', 'L', 'C', 'D', 'M'].contains(c) ).collect();
 
         let product = roman::roman_to_int(&s).expect("string is filtered so Err is unreachable")
                         .iter().try_fold(1usize, |acc, &num| acc.checked_mul(num as usize));
@@ -151,7 +153,7 @@ impl PasswordGame {
     }
 
     fn includes_leap_year(s: &str) -> bool {
-        fn is_leap(n: &Vec<u32>) -> bool {
+        fn is_leap(n: &[u32]) -> bool {
             if n.is_empty() { return false; }
             let n = n.iter().fold(0, |acc, elem| acc * 10 + elem);
 
@@ -168,6 +170,11 @@ impl PasswordGame {
         }
 
         is_leap(&number)
+    }
+
+    fn includes_best_chess_move(&self, s: &str) -> bool {
+        // https://neal.fun/password-game/chess/puzzle192.svg
+        true
     }
 }
 

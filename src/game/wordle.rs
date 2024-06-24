@@ -1,5 +1,4 @@
 use chrono::offset::Local;
-use reqwest;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
