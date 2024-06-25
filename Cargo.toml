@@ -7,7 +7,11 @@ edition = "2021"
 debug = 0
 strip = "debuginfo"
 
+[workspace]
+members = ["chess_engine"]
+
 [dependencies]
+chess_engine = { path = "./chess_engine" }
 build_html = "2.4.0"
 chrono = "0.4.38"
 moontool = "0.3.0"
