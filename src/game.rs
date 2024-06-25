@@ -43,8 +43,10 @@ pub struct PasswordGame {
 
 impl Default for PasswordGame {
    fn default() -> Self {
-        let captcha = ["be3bp", "74eyg", "x4gg5", "p2m6n", "pcede", "bdg84", "52447",
-                       "y4n6m", "y5w28", "mgw3n", "cen55", "y4n6m", "wce5n", "d22bd"].choose(&mut rand::thread_rng()).expect("safe to unwrap as array is not empty");
+        static VALID_CAPTCHA: [&str; 14] = ["be3bp", "74eyg", "x4gg5", "p2m6n", "pcede", "bdg84", "52447",
+                                            "y4n6m", "y5w28", "mgw3n", "cen55", "y4n6m", "wce5n", "d22bd"];
+        
+        let captcha = VALID_CAPTCHA.choose(&mut rand::thread_rng()).expect("safe to unwrap as array is not empty");
 
         PasswordGame {
             current_rule: Default::default(),
@@ -98,10 +100,10 @@ impl PasswordGame {
     }
 
     fn includes_month(s: &str) -> bool {
-        let months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+        static MONTHS: [&str; 12] = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
         let s = s.to_lowercase();
 
-        months.iter().any(|m| s.contains(m))
+        MONTHS.iter().any(|m| s.contains(m))
     }
 
     fn includes_sponsors(s: &str) -> bool {
@@ -122,7 +124,7 @@ impl PasswordGame {
     }
 
     fn includes_2_letter_periodic_symbol(s: &str) -> bool {
-        let symbols = HashSet::from([
+        static PERIODIC_TABLE: [&str; 104] = [
                                                                                                                   "He",
             "Li", "Be",                                                                                           "Ne",
             "Na", "Mg",                                                             "Al", "Si",             "Cl", "Ar",
@@ -132,7 +134,9 @@ impl PasswordGame {
             "Fr", "Ra",       "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
                               "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
                               "Ac", "Th", "Pa",       "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
-        ]);
+        ];
+
+        let symbols = HashSet::from(PERIODIC_TABLE);
         
         for w in s.chars().collect::<Vec<char>>().windows(2) {
             if symbols.contains(w.iter().collect::<String>().as_str()) { return true; }
