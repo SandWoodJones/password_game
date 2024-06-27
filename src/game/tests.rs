@@ -117,3 +117,15 @@ fn rule_15_test() {
     assert!(!test_game.validate_password("a-~30e..ç", GameRules::IncludeLeapYear));
     assert!(!test_game.validate_password("2200", GameRules::IncludeLeapYear));
 }
+
+#[test]
+fn rule_16_test() {
+    let test_game = PasswordGame::new();
+    todo!()
+}
+
+#[test]
+fn rule_17_test() {
+    let test_game = PasswordGame::new();
+    todo!()
+}

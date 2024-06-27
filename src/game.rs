@@ -12,6 +12,19 @@ use crate::roman;
 use wordle::Wordle;
 use geoguess::GeoGuess;
 
+static PERIODIC_TABLE: [&str; 118] = [
+    "H" ,                                                                                                 "He",
+    "Li", "Be",                                                             "B" , "C" , "N" , "O" , "F" , "Ne",
+    "Na", "Mg",                                                             "Al", "Si", "P" , "S" , "Cl", "Ar",
+    "K" , "Ca", "Sc", "Ti", "V" , "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
+    "Rb", "Sr", "Y" , "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I" , "Xe",
+    "Cs", "Ba",       "Hf", "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
+    "Fr", "Ra",       "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
+                      "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+                      "Ac", "Th", "Pa", "U" , "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
+];
+
+
 #[derive(Debug, Default, Copy, Clone)]
 pub enum GameRules {
     #[default]
@@ -30,7 +43,9 @@ pub enum GameRules {
     IncludeMoonPhase,
     IncludeCountryName,
     IncludeLeapYear,
-    IncludeBestMove
+    IncludeBestMove,
+    IncludePaul,
+    AtomicAddTo200
 }
 
 pub struct PasswordGame {
@@ -83,7 +98,9 @@ impl PasswordGame {
             IncludeMoonPhase => { self.includes_moon_phase_emoji(pass) },
             IncludeCountryName => { pass.to_lowercase().contains(&self.geoguesser.answer) },
             IncludeLeapYear => { Self::includes_leap_year(pass) },
-            IncludeBestMove => { self.includes_best_chess_move(pass) }
+            IncludeBestMove => { self.includes_best_chess_move(pass) },
+            IncludePaul => { self.includes_chicken_egg(pass) },
+            AtomicAddTo200 => { Self::atomic_numbers_add_to_200(pass) }
         }
     }
 }
@@ -124,25 +141,11 @@ impl PasswordGame {
     }
 
     fn includes_2_letter_periodic_symbol(s: &str) -> bool {
-        static PERIODIC_TABLE: [&str; 104] = [
-                                                                                                                  "He",
-            "Li", "Be",                                                                                           "Ne",
-            "Na", "Mg",                                                             "Al", "Si",             "Cl", "Ar",
-                  "Ca", "Sc", "Ti",       "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
-            "Rb", "Sr",       "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",       "Xe",
-            "Cs", "Ba",       "Hf", "Ta",       "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
-            "Fr", "Ra",       "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
-                              "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
-                              "Ac", "Th", "Pa",       "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
-        ];
+        let symbols: Vec<_> = PERIODIC_TABLE.iter()
+                                    .filter(|sym| sym.len() == 2)
+                                    .collect();
 
-        let symbols = HashSet::from(PERIODIC_TABLE);
-        
-        for w in s.chars().collect::<Vec<char>>().windows(2) {
-            if symbols.contains(w.iter().collect::<String>().as_str()) { return true; }
-        }
-
-        false
+        symbols.iter().any(|&sym| s.contains(sym))
     }
 
     fn includes_moon_phase_emoji(&self, s: &str) -> bool {
@@ -179,6 +182,14 @@ impl PasswordGame {
     fn includes_best_chess_move(&self, s: &str) -> bool {
         // https://neal.fun/password-game/chess/puzzle192.svg
         true
+    }
+
+    fn includes_chicken_egg(&self, s: &str) -> bool {
+        true
+    }
+
+    fn atomic_numbers_add_to_200(s: &str) -> bool {
+        true        
     }
 }
 
