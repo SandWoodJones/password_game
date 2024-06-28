@@ -1,12 +1,12 @@
+mod constants;
 mod game;
-mod roman;
 
-use game::{GameRules, PasswordGame};
+use game::{PasswordGame, ruleset::Rule};
 
 fn main() {
     let mut game = PasswordGame::new();
 
-    game.set_rule(GameRules::AtomicAddTo200);
+    game.set_rule(Rule::AtomicAddTo200);
     game.play("Og  AuHeHH");
 }
 
