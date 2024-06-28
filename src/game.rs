@@ -1,6 +1,5 @@
 use rand::seq::SliceRandom;
 use moontool::moon::MoonPhase;
-use std::collections::HashSet;
 
 mod wordle;
 mod geoguess;
@@ -13,17 +12,14 @@ use wordle::Wordle;
 use geoguess::GeoGuess;
 
 static PERIODIC_TABLE: [&str; 118] = [
-    "H" ,                                                                                                 "He",
-    "Li", "Be",                                                             "B" , "C" , "N" , "O" , "F" , "Ne",
-    "Na", "Mg",                                                             "Al", "Si", "P" , "S" , "Cl", "Ar",
-    "K" , "Ca", "Sc", "Ti", "V" , "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
-    "Rb", "Sr", "Y" , "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I" , "Xe",
-    "Cs", "Ba",       "Hf", "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
-    "Fr", "Ra",       "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
-                      "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
-                      "Ac", "Th", "Pa", "U" , "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
+    "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
+    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
+    "Kr", "Rb", "Sr", "Y" , "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te",
+    "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm",
+    "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
+    "Fr", "Ra", "Ac", "Th", "Pa", "U" , "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+    "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",                      
 ];
-
 
 #[derive(Debug, Default, Copy, Clone)]
 pub enum GameRules {
@@ -181,15 +177,27 @@ impl PasswordGame {
 
     fn includes_best_chess_move(&self, s: &str) -> bool {
         // https://neal.fun/password-game/chess/puzzle192.svg
-        true
+        todo!()
     }
 
     fn includes_chicken_egg(&self, s: &str) -> bool {
-        true
+        todo!()
     }
 
     fn atomic_numbers_add_to_200(s: &str) -> bool {
-        true        
+        let mut sum = 0;
+        
+        let mut s = s.chars().peekable();
+        while let Some(c) = s.next() {
+            if c.is_ascii_uppercase() {
+                let mut symbol = String::from(c);
+                if let Some(lower) = s.next_if(|&x| x.is_ascii_lowercase()) { symbol.push(lower); }
+                
+                if let Some(idx) = PERIODIC_TABLE.iter().position(|&x| x == symbol) { sum += idx + 1; }
+            }
+        }
+
+        sum == 200
     }
 }
 
