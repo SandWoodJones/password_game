@@ -22,7 +22,11 @@ pub enum Rule {
     IncludeLeapYear,
     IncludeBestMove,
     IncludePaul,
-    AtomicAddTo200
+    AtomicAddTo200,
+    AllVowelsBolded,
+    Fire,
+    StrongEnough,
+    IncludeAffirmations
 }
 
 impl Rule {
@@ -47,7 +51,11 @@ impl Rule {
             IncludeLeapYear        => { Self::includes_leap_year(s) },
             IncludeBestMove        => { Self::includes_best_chess_move(game, s) },
             IncludePaul            => { Self::includes_chicken_egg(game, s) },
-            AtomicAddTo200         => { Self::atomic_numbers_add_to_200(s) }
+            AtomicAddTo200         => { Self::atomic_numbers_add_to_200(s) },
+            AllVowelsBolded        => { todo!() },
+            Fire                   => { todo!() },
+            StrongEnough           => { s.chars().filter(|&c| c == '\u{1f3cb}').count() >= 3 },
+            IncludeAffirmations    => { Self::includes_positive_affirmations(s) }
         }
     }
 }
@@ -149,6 +157,11 @@ impl Rule {
 
         sum == 200
     }
+
+    fn includes_positive_affirmations(s: &str) -> bool {
+        let mut s = s.to_lowercase();
+        s.retain(|c| !c.is_whitespace());
+
+        AFFIRMATIONS.iter().any(|m| s.contains(m))
+    }
 }
-
-

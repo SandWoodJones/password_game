@@ -80,47 +80,47 @@ fn rule_7_test() {
     assert!(!test_game.validate_password("million"));
 }
 
-#[test]
-fn rule_8_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_8_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
-#[test]
-fn rule_9_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_9_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
-#[test]
-fn rule_10_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_10_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
-#[test]
-fn rule_11_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_11_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
-#[test]
-fn rule_12_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_12_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
-#[test]
-fn rule_13_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_13_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
-#[test]
-fn rule_14_test() {
-    let mut test_game = PasswordGame::new();
-    todo!()
-}
+// #[test]
+// fn rule_14_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
 
 #[test]
 fn rule_15_test() {
@@ -134,14 +134,42 @@ fn rule_15_test() {
     assert!(!test_game.validate_password("2200"));
 }
 
+// #[test]
+// fn rule_16_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
+
+// #[test]
+// fn rule_17_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
+
+// #[test]
+// fn rule_18_test() {
+//     let mut test_game = PasswordGame::new();
+//     todo!()
+// }
+
 #[test]
-fn rule_16_test() {
+fn rule_21_test() {
     let mut test_game = PasswordGame::new();
-    todo!()
+    test_game.set_rule(Rule::StrongEnough);
+
+    assert!(test_game.validate_password("\u{1f3cb}\u{1f3cb}\u{1f3cb}"));
+    assert!(test_game.validate_password("\u{1f3cb}01213.as\u{1f3cb}dsakma\u{1f3cb}"));
+    assert!(!test_game.validate_password("\u{1f3cb}\u{1f3cb}"));
 }
 
 #[test]
-fn rule_17_test() {
+fn rule_22_test() {
     let mut test_game = PasswordGame::new();
-    todo!()
+    test_game.set_rule(Rule::IncludeAffirmations);
+
+    assert!(test_game.validate_password("i am loved"));
+    assert!(test_game.validate_password("a1231.@i am worthyll.;"));
+    assert!(test_game.validate_password("iamenough"));
+    assert!(!test_game.validate_password("iamlove"));
+    assert!(!test_game.validate_password(""));
 }

@@ -14,3 +14,4 @@ pub static PERIODIC_TABLE: [&str; 118] = [
     "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og",                      
 ];
 
+pub static AFFIRMATIONS: [&str; 3] = ["iamloved", "iamworthy", "iamenough"];
