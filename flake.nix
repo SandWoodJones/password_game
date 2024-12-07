@@ -9,13 +9,19 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = (import nixpkgs) { inherit system; };
-        naersk' = pkgs.callPackage naersk {};
-      in rec {
-        defaultPackage = naersk'.buildPackage { src = ./.; };
+        stdenv_mold = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;
 
-        devShell = pkgs.mkShell {
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-        
+        naersk' = pkgs.callPackage naersk { stdenv = stdenv_mold; };
+      in rec {
+        defaultPackage = naersk'.buildPackage {
+          src = ./.;
+
+          nativeBuildInputs = [ pkgs.clang pkgs.mold ];
+          RUSTFLAGS = "-C linker=clang -C link-arg=-fuse-ld=mold";
+        };
+
+        devShell = pkgs.mkShell.override { stdenv = stdenv_mold; } {
+          RUSTFLAGS = "-C linker=clang -C link-arg=-fuse-ld=mold";
           buildInputs = with pkgs; [ rust-analyzer ]
             ++ defaultPackage.nativeBuildInputs
             ++ defaultPackage.buildInputs;
