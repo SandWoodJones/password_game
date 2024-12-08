@@ -1,31 +1,29 @@
 {
+  description = "A password game implementation in rust";
+
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-    naersk.url = "github:nix-community/naersk";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    naersk.url = "github:nix-community/naersk";
   };
 
-  outputs = { self, flake-utils, naersk, nixpkgs }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; }  {
+      systems = [ "x86_64-linux" ];
+      perSystem = { pkgs, inputs', config, ... }:
       let
-        pkgs = (import nixpkgs) { inherit system; };
-        stdenv_mold = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;
-
-        naersk' = pkgs.callPackage naersk { stdenv = stdenv_mold; };
-      in rec {
-        defaultPackage = naersk'.buildPackage {
+        stdenv' = pkgs.stdenvAdapters.useMoldLinker pkgs.clangStdenv;
+        naersk' = pkgs.callPackage inputs.naersk { stdenv = stdenv'; };
+      in {
+        packages.default = naersk'.buildPackage {
           src = ./.;
-
-          nativeBuildInputs = [ pkgs.clang pkgs.mold ];
-          RUSTFLAGS = "-C linker=clang -C link-arg=-fuse-ld=mold";
         };
 
-        devShell = pkgs.mkShell.override { stdenv = stdenv_mold; } {
-          RUSTFLAGS = "-C linker=clang -C link-arg=-fuse-ld=mold";
-          buildInputs = with pkgs; [ rust-analyzer ]
-            ++ defaultPackage.nativeBuildInputs
-            ++ defaultPackage.buildInputs;
+        devShells.default = pkgs.mkShell.override { stdenv = stdenv'; } {
+          buildInputs = with pkgs; [ rust-analyzer clippy ]
+            ++ config.packages.default.nativeBuildInputs
+            ++ config.packages.default.buildInputs;
         };
-      }
-    );
+      };
+    };
 }
